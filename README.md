@@ -6,4 +6,4 @@ Package CRUD UI allows you to run a simple administration panel for struct insta
 
 ## Example usage
 
-TODO.
+Real life example is yet to come but please navigate to `main_test.go` to see a simple usage.
