@@ -22,16 +22,16 @@ type ORM interface {
 	// Parameter `forceNameForDB` allows forcing another struct name (which later is used for generating table name).
 	// This interface is based on the struct2db module and that module allows some cascade operations (such as delete or update). For this to work, and when certain fields are other structs, ORM must go
 	// deeper and initializes that guys as well. When setting useOnlyRootFromInheritedObj to true, it's being avoided.
-	RegisterStruct(obj interface{}, inheritFromObj interface{}, overwriteExisting bool, forceNameForDB string, useOnlyRootFromInheritedObj bool) ORMError
+	RegisterStruct(obj interface{}, inheritFromObj interface{}, overwriteExisting bool, forceNameForDB string, useOnlyRootFromInheritedObj bool) error
 	// CreateTables create database tables for struct instances
 	CreateTables(objs ...interface{}) error
 	// DeleteMultiple removes struct items by their ids
 	DeleteMultiple(obj interface{}, filters map[string]interface{}) error
 	// Get fetches data from the database and returns struct instances. Hence, it requires a constructor for the returned objects. Apart from the self-explanatory fields, filters in a format of (field name, any value)
 	// can be added, and each returned object (based on a database row) can be transformed into anything else.
-	Get(newObjFunc func() interface{}, order []string, limit int, offset int, filters map[string]interface{}, rowObjTransformFunc func(interface{}) interface{}) ([]interface{}, ORMError)
+	Get(newObjFunc func() interface{}, order []string, limit int, offset int, filters map[string]interface{}, rowObjTransformFunc func(interface{}) interface{}) ([]interface{}, error)
 	// GetCount returns number of struct items found in the database
-	GetCount(newObjFunc func() interface{}, filters map[string]interface{}) (int64, ORMError)
+	GetCount(newObjFunc func() interface{}, filters map[string]interface{}) (int64, error)
 	// Load populates struct instance's field values with database values
 	Load(obj interface{}, id string) error
 	// Save stores (creates or updates) struct instance in the appropriate database table
@@ -83,7 +83,7 @@ func (w *wrappedStruct2db) DeleteMultiple(obj interface{}, filters map[string]in
 	})
 }
 
-func (w *wrappedStruct2db) Get(newObjFunc func() interface{}, order []string, limit int, offset int, filters map[string]interface{}, rowObjTransformFunc func(interface{}) interface{}) ([]interface{}, ORMError) {
+func (w *wrappedStruct2db) Get(newObjFunc func() interface{}, order []string, limit int, offset int, filters map[string]interface{}, rowObjTransformFunc func(interface{}) interface{}) ([]interface{}, error) {
 	xobj, err := w.orm.Get(newObjFunc, struct2db.GetOptions{
 		Order:               order,
 		Limit:               limit,
@@ -102,7 +102,7 @@ func (w *wrappedStruct2db) Get(newObjFunc func() interface{}, order []string, li
 	return xobj, nil
 }
 
-func (w *wrappedStruct2db) GetCount(newObjFunc func() interface{}, filters map[string]interface{}) (int64, ORMError) {
+func (w *wrappedStruct2db) GetCount(newObjFunc func() interface{}, filters map[string]interface{}) (int64, error) {
 	cnt, err := w.orm.GetCount(newObjFunc, struct2db.GetCountOptions{
 		Filters: filters,
 	})
@@ -133,7 +133,7 @@ func (w *wrappedStruct2db) Delete(obj interface{}) error {
 	return w.orm.Delete(obj, struct2db.DeleteOptions{})
 }
 
-func (w *wrappedStruct2db) RegisterStruct(obj interface{}, inheritFromObj interface{}, overwriteExisting bool, forceNameForDB string, useOnlyRootFromInheritedObj bool) ORMError {
+func (w *wrappedStruct2db) RegisterStruct(obj interface{}, inheritFromObj interface{}, overwriteExisting bool, forceNameForDB string, useOnlyRootFromInheritedObj bool) error {
 	err := w.orm.AddSQLGenerator(obj, inheritFromObj, overwriteExisting, forceNameForDB, useOnlyRootFromInheritedObj)
 	if err != nil {
 		return ormErrorImpl{
