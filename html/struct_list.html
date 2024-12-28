@@ -1,0 +1,9 @@
+{{ $uri := .URI }}
+
+{{ range .Structs }}
+<li><a
+    hx-get="{{ $uri }}x/struct_items/{{ .Name }}/"
+    hx-trigger="click"
+    hx-target="#center_text"
+    hx-swap="innerHTML">{{ .Name }}</a></li>
+{{ end }}

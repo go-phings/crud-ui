@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>admin</title>
+<style>
+  {{ .ConfigCss }}
+
+  {{ .StylesCss }}
+</style>
+</head>
+<body>
+  <div id="layout">
+    <div id="center_text">
+      <h3 style="margin: auto; width: 300px; margin-top: 100px">Login</h3>
+      <form style="margin: auto; width: 300px" method="post" action="{{ .URI }}r/login/">
+        <p>
+          <label>E-mail:</label>
+          <input type="text" name="email"/>
+        </p>
+        <p>
+          <label>Password:</label>
+          <input type="password" name="password"/>
+        </p>
+        <p>
+          <label></label>
+          <button type="submit">Login</button>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <div id="top_menu">
+  </div>
+</body>
+</html> 

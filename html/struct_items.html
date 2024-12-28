@@ -1,0 +1,155 @@
+{{ define "paramsFiltersOnLoad" }}{{ range . }}, filter{{ . }}:document.getElementById('struct_items_filteronload_{{ . }}').value{{ end }}{{ end }}
+{{ define "paramsFiltersInput" }}{{ range . }}, filter{{ . }}:document.getElementById('struct_items_filter_{{ . }}').value{{ end }}{{ end }}
+{{ define "paramsLimitOnLoad" }}, limit:document.getElementById('struct_items_limit_onload').value{{ end }}
+{{ define "paramsLimitSelect" }}, limit:document.getElementById('struct_items_limit').options[document.getElementById('struct_items_limit').selectedIndex].value{{ end }}
+{{ define "paramsRawFilterInput" }}, rawFilter:document.getElementById('struct_items_raw_filter').value{{ end }}
+{{ define "paramsRawFilterOnLoad" }}, rawFilter:document.getElementById('struct_items_raw_filter_onload').value{{ end }}
+{{ define "paramsOrderOnLoad" }}, order:document.getElementById('struct_items_order_onload').value{{ end }}
+{{ define "paramsOrderDirectionOnLoad" }}, orderDirection:document.getElementById('struct_items_order_direction_onload').value{{ end }}
+
+{{ $uri := .URI }}
+{{ $name := .Name }}
+{{ $count := .ItemsCount }}
+{{ $paramPage := .ParamPage }}
+{{ $paramLimit := .ParamLimit }}
+{{ $paramRawFilterEscaped := .ParamRawFilterEscaped }}
+{{ $paramFiltersEscaped := .ParamFiltersEscaped }}
+{{ $paramOrder := .ParamOrder }}
+{{ $paramOrderDirection := .ParamOrderDirection }}
+{{ $fields := .Fields }}
+{{ $canCreate := .CanCreate }}
+{{ $canUpdate := .CanUpdate }}
+{{ $canDelete := .CanDelete }}
+
+<input type="hidden" id="struct_items_raw_filter_onload" value="{{ $paramRawFilterEscaped }}"/>
+<input type="hidden" id="struct_items_page_onload" value="{{ $paramPage }}"/>
+<input type="hidden" id="struct_items_limit_onload" value="{{ $paramLimit }}"/>
+<input type="hidden" id="struct_items_order_onload" value="{{ $paramOrder }}"/>
+<input type="hidden" id="struct_items_order_direction_onload" value="{{ $paramOrderDirection }}"/>
+{{ range .Fields }}
+<input type="hidden" id="struct_items_filteronload_{{ . }}" value="{{ index $paramFiltersEscaped . }}"/>
+{{ end }}
+
+<h3>{{ $name }} items</h3>
+
+{{ if $canCreate }}
+<div>
+  <div><button hx-get="{{ $uri }}x/struct_item/{{ $name }}/" hx-trigger="click" hx-target="#right_text" hx-swap="innerHTML">Add item</button></div>
+</div>
+{{ end }}
+
+{{/*<div class="filter">
+  <div class="label">Advanced filter:</div>
+  <div class="input"><input type="text" id="struct_items_raw_filter" value="{{ $paramRawFilterEscaped }}"/></div>
+  <div><button
+    hx-get="{{ $uri }}x/struct_items/{{ $name }}/"
+    hx-trigger="click"
+    hx-target="#center_text"
+    hx-swap="innerHTML"
+    hx-vals="js:{ page:1{{ template "paramsLimitOnLoad" }}{{ template "paramsFiltersOnLoad" $fields }}{{ template "paramsOrderOnLoad" }}{{ template "paramsOrderDirectionOnLoad" }} }"
+    >Clear</button> <button
+    hx-get="{{ $uri }}x/struct_items/{{ $name }}/"
+    hx-trigger="click"
+    hx-target="#center_text"
+    hx-swap="innerHTML"
+    hx-vals="js:{ page:1{{ template "paramsLimitOnLoad" }}{{ template "paramsFiltersOnLoad" $fields }}{{ template "paramsRawFilterInput" }}{{ template "paramsOrderOnLoad" }}{{ template "paramsOrderDirectionOnLoad" }} }"
+    >Filter</button></div>
+</div>*/}}
+
+<div>
+  <div><b>{{ $count }}</b> items found</div>
+</div>
+<div>
+  <div>Page: {{ range .PageNumbers }}{{ if eq . "" }} ... {{ else }} <button{{ if eq . $paramPage }} class="selected"{{ end }}
+    hx-get="{{ $uri }}x/struct_items/{{ $name }}/"
+    hx-trigger="click"
+    hx-target="#center_text"
+    hx-swap="innerHTML"
+    hx-vals="js:{ page:{{ . }}{{ template "paramsLimitOnLoad" }}{{ template "paramsFiltersOnLoad" $fields }}{{ template "paramsRawFilterOnLoad" }}{{ template "paramsOrderOnLoad" }}{{ template "paramsOrderDirectionOnLoad" }} }"
+    >{{ . }}</button>{{ end }} {{ end }}</div>
+  <div class="txt_r">Items per page: <select id="struct_items_limit"
+    hx-get="{{ $uri }}x/struct_items/{{ $name }}/"
+    hx-trigger="change"
+    hx-target="#center_text"
+    hx-swap="innerHTML"
+    hx-vals="js:{ page:1{{ template "paramsLimitSelect" }}{{ template "paramsFiltersOnLoad" $fields }}{{ template "paramsRawFilterOnLoad" }}{{ template "paramsOrderOnLoad" }}{{ template "paramsOrderDirectionOnLoad" }} }">
+    <option value="10"{{ if eq .ParamLimit "10" }} selected{{ end }}>10</option>
+    <option value="25"{{ if eq .ParamLimit "25" }} selected{{ end }}>25</option>
+    <option value="50"{{ if eq .ParamLimit "50" }} selected{{ end }}>50</option>
+    <option value="100"{{ if eq .ParamLimit "100" }} selected{{ end }}>100</option>
+  </select></div>
+</div>
+
+{{ if $canDelete }}
+<div>
+  <div>Selection: 
+    <button onclick="tickAllStructItems('{{ $name }}');">Select all</button>
+    <button onclick="untickAllStructItems('{{ $name }}');">Select none</button>
+    <button onclick="invertAllStructItems('{{ $name }}');">Invert selection</button>
+  </div>
+  <div class="txt_r">Selected: 
+    <button 
+      hx-on-htmx-after-request="removeTickedStructItemTableRows('{{ $name }}');"
+      hx-delete="{{ $uri }}x/struct_items/{{ $name }}/"
+      hx-vals="js:{ ids: getTickedStructItems('{{ $name }}') }"
+      hx-trigger="click" hx-swap="none">Delete</button>
+  </div>
+</div>
+{{ end }}
+
+
+<div>
+  <table>
+    <thead>
+      <th></th>
+
+      {{ range .Fields }}
+      <th>
+        <div class="{{ if eq . $paramOrder }} selected{{ end }}">{{ . }} <a class="{{ if and (eq . $paramOrder) (eq $paramOrderDirection "asc") }} selected{{ end }}" alt="Sort ascending"
+          hx-get="{{ $uri }}x/struct_items/{{ $name }}/"
+          hx-trigger="click"
+          hx-target="#center_text"
+          hx-swap="innerHTML"
+          hx-vals="js:{ page:1, order:'{{ . }}', orderDirection:'asc'{{ template "paramsLimitOnLoad" }}{{ template "paramsFiltersOnLoad" $fields }}{{ template "paramsRawFilterOnLoad" }} }"
+          >A</a> <a class="{{ if and (eq . $paramOrder) (eq $paramOrderDirection "desc") }} selected{{ end }}" alt="Sort descending"
+          hx-get="{{ $uri }}x/struct_items/{{ $name }}/"
+          hx-trigger="click"
+          hx-target="#center_text"
+          hx-swap="innerHTML"
+          hx-vals="js:{ page:1, order:'{{ . }}', orderDirection:'desc'{{ template "paramsLimitOnLoad" }}{{ template "paramsFiltersOnLoad" $fields }}{{ template "paramsRawFilterOnLoad" }} }"
+          >D</a></div>
+        <div class="fl">
+          <div><input type="text" id="struct_items_filter_{{ . }}" value="{{ index $paramFiltersEscaped . }}"/></div>
+          <div><a alt="Clear filter" onclick="document.getElementById('struct_items_filter_{{ . }}').value='';">&#10005;</a></div>
+        </div>
+      </th>
+      {{ end }}
+
+      <th>
+        <div>Actions</div>
+        <div>
+          <button
+            hx-get="{{ $uri }}x/struct_items/{{ $name }}/"
+            hx-trigger="click"
+            hx-target="#center_text"
+            hx-swap="innerHTML"
+            hx-vals="js:{ page:1{{ template "paramsLimitOnLoad" }}{{ template "paramsFiltersInput" $fields }}{{ template "paramsRawFilterOnLoad" }}{{ template "paramsOrderOnLoad" }}{{ template "paramsOrderDirectionOnLoad" }} }"
+          >Filter</button>
+        </div>
+      </th>
+    </thead>
+    <tbody>
+      {{ range .ItemsHTML }}
+      {{ $split := SplitRow . }}
+      <tr struct-item-row="{{ $name }}" struct-item-id="{{ index $split 0 }}">
+        <td><input type="checkbox" struct-item-checkbox="{{ $name }}" struct-item-id="{{ index $split 0 }}"/></td>
+        {{ index $split 1 }}
+        <td>
+          <a hx-get="{{ $uri }}x/struct_item/{{ $name }}/{{ index $split 0 }}" hx-trigger="click"  hx-target="#right_text" hx-swap="innerHTML">&#9998;</a>
+          {{ if $canDelete }}<a hx-delete="{{ $uri }}x/struct_item/{{ $name }}/{{ index $split 0 }}" hx-trigger="click" hx-target="closest tr" hx-swap="delete">&#10005;</a> {{ end }}
+        </td>
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>
