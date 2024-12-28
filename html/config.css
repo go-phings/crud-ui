@@ -1,0 +1,29 @@
+:root {
+  --font-family: Arial, Helvetica, sans-serif;
+
+  --font-size-1: 14px;
+  --font-size-2: 16px;
+  --font-size-3: 20px;
+  --font-size-5: 34px;
+
+  --color-1: #ffffff;
+  --color-2: #e6e8e6;
+  --color-3: #ced0ce;
+  --color-4: #f15025;
+  --color-5: #191919;
+  --color-6: #6c757d;
+  --color-success: #7cb518;
+  --color-error: #e53d00;
+  --color-warning: #ffba08;
+
+  --zindex-top-menu: 502;
+
+  --top-height: 25px;
+  --left-icons-width: 50px;
+  --left-text-width: 180px;
+  --right-text-width: 390px;
+  --right-icons-width: 50px;
+
+  --thumbnail-width: 200px;
+  --thumbnail-height: 200px;
+}

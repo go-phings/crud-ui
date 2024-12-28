@@ -1,0 +1,43 @@
+{{ $uri := .URI }}
+
+{{ if not .OnlyMsg }}
+{{ if eq .ID "" }}
+<h3>New {{ .Name }} item</h3>
+{{ else }}
+<h3>{{ .Name }} item with ID {{ .ID }}</h3>
+{{ end }}
+{{ end }}
+
+
+{{ if ne .MsgHTML "" }}
+{{ .MsgHTML }}
+{{ end }}
+
+{{ if not .OnlyMsg }}
+{{ if eq .ID "" }}
+
+<div>
+<form{{ if not .ReadOnly }} hx-put="{{ $uri }}x/struct_item/{{ .Name }}/" hx-target="closest div"{{ end }}>
+{{ .FieldsHTML }}
+{{ if not .ReadOnly }}<p>
+<label></label>
+<button type="submit">add</button>
+<button type="reset">reset</button>
+</p>{{ end }}
+</form>
+</div>
+
+{{ else }}
+
+<div>
+<form{{ if not .ReadOnly }} hx-post="{{ $uri }}x/struct_item/{{ .Name }}/{{ .ID }}" hx-target="#right_text"{{ end }}>
+{{ .FieldsHTML }}
+{{ if not .ReadOnly }}<p>
+<label></label>
+<button type="submit">save</button>
+</p>{{ end }}
+</form>
+</div>
+
+{{ end }}
+{{ end }}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>admin</title>
+<script src="https://unpkg.com/htmx.org@2.0.1"></script>
+<style>
+  {{ .ConfigCss }}
+
+  {{ .StylesCss }}
+</style>
+<script>
+  function tickAllStructItems(n) {
+    document.querySelectorAll('input[struct-item-checkbox="'+n+'"]').forEach(e => {
+      e.checked = true;
+    });
+  }
+  function untickAllStructItems(n) {
+    document.querySelectorAll('input[struct-item-checkbox="'+n+'"]').forEach(e => {
+      e.checked = false;
+    });
+  }
+  function invertAllStructItems(n) {
+    document.querySelectorAll('input[struct-item-checkbox="'+n+'"]').forEach(e => {
+      e.checked = (e.checked ? false : true);
+    });
+  }
+  function getTickedStructItems(n) {
+    ids = "";
+    document.querySelectorAll('input[struct-item-checkbox="'+n+'"]').forEach(e => {
+      if (e.checked) {
+        ids += (ids != "" ? "," : "") + e.getAttribute("struct-item-id");
+      }
+    });
+    return ids;
+  }
+  function removeTickedStructItemTableRows(n) {
+    document.querySelectorAll('input[struct-item-checkbox="'+n+'"]').forEach(e => {
+      if (e.checked) {
+        id = e.getAttribute("struct-item-id");
+        document.querySelector('tr[struct-item-row="'+n+'"][struct-item-id="'+id+'"]').remove();
+      }
+    });
+  }
+</script>
+</head>
+<body>
+  <div id="layout">
+    <div id="left_text">
+      <h3>Structs</h3>
+      <h5>Click on the struct name to manage its contents</h5>
+      <ul id="struct-list">{{ .StructList }}</ul>      
+    </div>
+    <div id="center_text">{{ .Content }}</div>
+    <div id="right_text">
+      <h3>Item properties</h3>
+    </div>
+  </div>
+
+  <div id="top_menu">
+    <div>
+    </div>
+    <div class="logout">
+      <div>
+        <button class="nobold nobtm">Signed in as {{ if ne .Username "" }}{{ .Username }}{{ else }}{{ .UserID }}{{ end }}</button> <button class="color nobtm" onclick="location.href='{{ .URI }}r/logout/';">Logout</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html> 
