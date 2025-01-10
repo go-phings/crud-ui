@@ -6,4 +6,6 @@ Package CRUD UI allows you to run a simple administration panel for struct insta
 
 ## Example usage
 
-Real life example is yet to come but please navigate to `main_test.go` to see a simple usage.
+Please check a sample application in the `cmd` directory or type in `make run-sample-app1` to start it, and navigate to `http://localhost:9001/ui/`.
+
+![screenshot](screenshot.png "screenshot")
