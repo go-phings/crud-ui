@@ -32,8 +32,17 @@ func (c *Controller) renderMain(w http.ResponseWriter, r *http.Request, uri stri
 
 	contentHomeTpl, _ := embed.FS.ReadFile(htmlDir, "html/content_home.html")
 
-	userId := r.Context().Value(ContextValue("LoggedUserID")).(string)
-	userName := r.Context().Value(ContextValue("LoggedUserName")).(string)
+	ctxId := r.Context().Value(ContextValue("LoggedUserID"))
+	ctxName := r.Context().Value(ContextValue("LoggedUserName"))
+
+	userId := "0"
+	if ctxId != nil {
+		userId = ctxId.(string)
+	}
+	userName := ""
+	if ctxName != nil {
+		userName = ctxName.(string)
+	}
 
 	tplObj := struct {
 		URI        string
